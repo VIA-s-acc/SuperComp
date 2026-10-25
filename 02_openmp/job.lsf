@@ -8,3 +8,6 @@ for t in 1 4 16; do
         OMP_NUM_THREADS=$t ./solver 80 80
     done
 done
+for t in 1 2 4 8 16; do
+    OMP_NUM_THREADS=$t ./solver 400 600
+done

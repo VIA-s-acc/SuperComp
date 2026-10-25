@@ -6,7 +6,7 @@
 #include <omp.h>
 #include <vector>
 
-const int ATTEMPT = 1;
+const int ATTEMPT = 2;
 const double A1 = -1, B1 = 1, A2 = -1, B2 = 1;
 
 static double v0(double x, double y) { return std::sin(x + y); }
@@ -101,9 +101,10 @@ int main(int argc, char **argv)
         }
 
     // Каждый цикл по узлам делится между нитями по строкам i.
+    // Скалярные произведения — через reduction: у каждой нити своя частичная сумма.
     // Старт CG (раздел 5): r0 = B - A*w0, z0 = r0 / D, p1 = z0.
     double zr = 0;
-    #pragma omp parallel for
+    #pragma omp parallel for reduction(+:zr)
     for (int i = 1; i < M; i++)
         for (int j = 1; j < N; j++) {
             int k = i * s + j;
@@ -118,7 +119,7 @@ int main(int argc, char **argv)
     for (it = 1; it <= max_iter; it++) {
         // Ap = A*p, alpha = (z, r) / (Ap, p).
         double pAp = 0, pp = 0;
-        #pragma omp parallel for
+        #pragma omp parallel for reduction(+:pAp, pp)
         for (int i = 1; i < M; i++)
             for (int j = 1; j < N; j++) {
                 int k = i * s + j;
@@ -130,7 +131,7 @@ int main(int argc, char **argv)
 
         // w += alpha*p (15), r -= alpha*Ap, новое (z, r).
         double zr_new = 0;
-        #pragma omp parallel for
+        #pragma omp parallel for reduction(+:zr_new)
         for (int i = 1; i < M; i++)
             for (int j = 1; j < N; j++) {
                 int k = i * s + j;

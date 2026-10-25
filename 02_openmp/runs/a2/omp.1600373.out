@@ -1,0 +1,64 @@
+Sender: LSF System <lsfadmin@polus-c4-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1600373: <omp> in cluster <MSUCluster> Done
+
+Job <omp> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-08> in cluster <MSUCluster> at Sun Oct 25 18:30:02 2026
+Job was executed on host(s) <polus-c4-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-08> in cluster <MSUCluster> at Sun Oct 25 18:30:02 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-08> was used as the home directory.
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-08/02_openmp> was used as the working directory.
+Started at Sun Oct 25 18:30:02 2026
+Terminated at Sun Oct 25 18:30:07 2026
+Results reported at Sun Oct 25 18:30:07 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J omp
+#BSUB -W 00:15
+#BSUB -o omp.%J.out
+#BSUB -e omp.%J.err
+#BSUB -R "affinity[core(16)]"
+for t in 1 4 16; do
+    for rep in 1 2; do
+        OMP_NUM_THREADS=$t ./solver 80 80
+    done
+done
+for t in 1 2 4 8 16; do
+    OMP_NUM_THREADS=$t ./solver 400 600
+done
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   18.84 sec.
+    Max Memory :                                 15 MB
+    Average Memory :                             10.33 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                5
+    Run time :                                   6 sec.
+    Turnaround time :                            5 sec.
+
+The output (if any) follows:
+
+RESULT impl=omp attempt=2 M=80 N=80 P=1 T=1 iters=167 time=0.010933 w00=0.241097385417
+RESULT impl=omp attempt=2 M=80 N=80 P=1 T=1 iters=167 time=0.010933 w00=0.241097385417
+RESULT impl=omp attempt=2 M=80 N=80 P=1 T=4 iters=167 time=0.004204 w00=0.241097385417
+RESULT impl=omp attempt=2 M=80 N=80 P=1 T=4 iters=167 time=0.004249 w00=0.241097385417
+RESULT impl=omp attempt=2 M=80 N=80 P=1 T=16 iters=167 time=0.006011 w00=0.241097385417
+RESULT impl=omp attempt=2 M=80 N=80 P=1 T=16 iters=167 time=0.006500 w00=0.241097385417
+RESULT impl=omp attempt=2 M=400 N=600 P=1 T=1 iters=962 time=2.256840 w00=0.243036155155
+RESULT impl=omp attempt=2 M=400 N=600 P=1 T=2 iters=962 time=1.131760 w00=0.243036155155
+RESULT impl=omp attempt=2 M=400 N=600 P=1 T=4 iters=962 time=0.611884 w00=0.243036155155
+RESULT impl=omp attempt=2 M=400 N=600 P=1 T=8 iters=962 time=0.541542 w00=0.243036155155
+RESULT impl=omp attempt=2 M=400 N=600 P=1 T=16 iters=962 time=0.457884 w00=0.243036155155
+
+
+PS:
+
+Read file <omp.1600373.err> for stderr output of this job.

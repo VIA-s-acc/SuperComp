@@ -1,13 +1,24 @@
 #BSUB -J omp
 #BSUB -W 00:15
+#BSUB -x
 #BSUB -o omp.%J.out
 #BSUB -e omp.%J.err
 #BSUB -R "affinity[core(16)]"
+cpus=$(echo "$LSB_BIND_CPU_LIST" | tr , '\n' \
+    | awk -F- 'NF == 2 { for (i = $1; i <= $2; i++) print i } NF == 1 { print $1 }' \
+    | awk '{ print $1 % 8, $1 }' | sort -n -k1,1 -k2,2 | awk '{ print $2 }')
+echo "LSB_BIND_CPU_LIST=$LSB_BIND_CPU_LIST"
+run() {
+    export OMP_NUM_THREADS=$1
+    export GOMP_CPU_AFFINITY="$(echo "$cpus" | head -n "$1" | tr '\n' ' ')"
+    echo "T=$1 GOMP_CPU_AFFINITY=$GOMP_CPU_AFFINITY"
+    ./solver $2 $3
+}
 for t in 1 4 16; do
     for rep in 1 2; do
-        OMP_NUM_THREADS=$t ./solver 80 80
+        run $t 80 80
     done
 done
 for t in 1 2 4 8 16; do
-    OMP_NUM_THREADS=$t ./solver 400 600
+    run $t 400 600
 done

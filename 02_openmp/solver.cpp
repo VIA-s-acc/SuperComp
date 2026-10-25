@@ -6,7 +6,7 @@
 #include <omp.h>
 #include <vector>
 
-const int ATTEMPT = 2;
+const int ATTEMPT = 3;
 const double A1 = -1, B1 = 1, A2 = -1, B2 = 1;
 
 static double v0(double x, double y) { return std::sin(x + y); }

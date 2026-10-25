@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <vector>
 
-const int ATTEMPT = 3;
+const int ATTEMPT = 4;
 const double A1 = -1, B1 = 1, A2 = -1, B2 = 1;
 
 static double v0(double x, double y) { return std::sin(x + y); }
@@ -76,9 +76,14 @@ int main(int argc, char **argv)
     const double h = std::max(h1, h2), eps = h * h;
     const int s = N + 1;
     const size_t n = size_t(M + 1) * s;
-    std::vector<double> Q(n, 0), w(n, 0), r(n, 0), p(n, 0), Ap(n, 0);
+    const double ih1 = 1 / (h1 * h1), ih2 = 1 / (h2 * h2), weight = h1 * h2;
 
-    // Граница: w = v0 (13). Внутри: F, Q по (11), в r — правая часть B = F + Q*v0 из (12).
+    // Все массивы в одном блоке со сдвигом: иначе на POWER8 они попадают в одни наборы кэша.
+    const size_t stride = (n + 8191) / 8192 * 8192 + 1664;
+    std::vector<double> mem(5 * stride, 0);
+    double *D = &mem[0], *w = &mem[stride], *r = &mem[2 * stride], *p = &mem[3 * stride], *Ap = &mem[4 * stride];
+
+    // Граница: w = v0 (13). Внутри: F, Q по (11), D = 2/h1^2 + 2/h2^2 + Q, в r — B = F + Q*v0 из (12).
     for (int i = 0; i <= M; i++)
         for (int j = 0; j <= N; j++) {
             double x = A1 + i * h1, y = A2 + j * h2;
@@ -88,21 +93,19 @@ int main(int argc, char **argv)
                 continue;
             }
             double frac = area_D(x - 0.5 * h1, x + 0.5 * h1, y - 0.5 * h2, y + 0.5 * h2) / (h1 * h2);
-            Q[k] = (1 - frac) / (eps * eps);
-            r[k] = frac + Q[k] * v0(x, y);
+            double Q = (1 - frac) / (eps * eps);
+            D[k] = 2 * ih1 + 2 * ih2 + Q;
+            r[k] = frac + Q * v0(x, y);
         }
-
-    const double ih1 = 1 / (h1 * h1), ih2 = 1 / (h2 * h2), weight = h1 * h2;
 
     // Старт CG (раздел 5): r0 = B - A*w0, z0 = r0 / D, p1 = z0.
     double zr = 0;
     for (int i = 1; i < M; i++)
         for (int j = 1; j < N; j++) {
             int k = i * s + j;
-            double d = 2 * ih1 + 2 * ih2 + Q[k];
-            double aw = d * w[k] - ih1 * (w[k - s] + w[k + s]) - ih2 * (w[k - 1] + w[k + 1]);
+            double aw = D[k] * w[k] - ih1 * (w[k - s] + w[k + s]) - ih2 * (w[k - 1] + w[k + 1]);
             r[k] -= aw;
-            p[k] = r[k] / d;
+            p[k] = r[k] / D[k];
             zr += p[k] * r[k];
         }
 
@@ -114,7 +117,7 @@ int main(int argc, char **argv)
         for (int i = 1; i < M; i++)
             for (int j = 1; j < N; j++) {
                 int k = i * s + j;
-                Ap[k] = (2 * ih1 + 2 * ih2 + Q[k]) * p[k] - ih1 * (p[k - s] + p[k + s]) - ih2 * (p[k - 1] + p[k + 1]);
+                Ap[k] = D[k] * p[k] - ih1 * (p[k - s] + p[k + s]) - ih2 * (p[k - 1] + p[k + 1]);
                 pAp += Ap[k] * p[k];
                 pp += p[k] * p[k];
             }
@@ -127,7 +130,7 @@ int main(int argc, char **argv)
                 int k = i * s + j;
                 w[k] += alpha * p[k];
                 r[k] -= alpha * Ap[k];
-                zr_new += r[k] * r[k] / (2 * ih1 + 2 * ih2 + Q[k]);
+                zr_new += r[k] * r[k] / D[k];
             }
 
         // Остановка (16): ||w(k+1) - w(k)|| = |alpha| * ||p||.
@@ -140,7 +143,7 @@ int main(int argc, char **argv)
         for (int i = 1; i < M; i++)
             for (int j = 1; j < N; j++) {
                 int k = i * s + j;
-                p[k] = r[k] / (2 * ih1 + 2 * ih2 + Q[k]) + beta * p[k];
+                p[k] = r[k] / D[k] + beta * p[k];
             }
     }
 

@@ -40,7 +40,7 @@ def main():
           "| Нити | Сетка M×N | Итерации | Время, с | Ускорение |", "|---|---|---|---|---|"]
     csv = ["threads,M,N,iters,time,speedup"]
     points = defaultdict(list)
-    for (M, N), threads in [((400, 600), [2, 4, 8, 16]), ((800, 1200), [4, 8, 16, 32])]:
+    for (M, N), threads in [((400, 600), [2, 4, 8, 16, 32]), ((800, 1200), [2, 4, 8, 16, 32])]:
         base = best(runs, ("serial", M, N, 1))
         for t in threads:
             r = best(runs, ("omp", M, N, t))

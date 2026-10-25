@@ -5,12 +5,56 @@
 #include <cstdlib>
 #include <vector>
 
-const int ATTEMPT = 2;
+const int ATTEMPT = 3;
 const double A1 = -1, B1 = 1, A2 = -1, B2 = 1;
 
 static double v0(double x, double y) { return std::sin(x + y); }
 
-static bool in_D(double x, double y) { return (x - 1) * (x - 1) + (y - 1) * (y - 1) > 1; }
+const double CX = 1, CY = 1, R = 1;
+
+// Площадь круга (центр 0) в [0,a]x[0,b], точно через первообразную sqrt(R^2 - x^2).
+static double quadrant_area(double a, double b)
+{
+    a = std::min(a, R);
+    b = std::min(b, R);
+    if (a * a + b * b <= R * R)
+        return a * b;
+    double x0 = std::sqrt(R * R - b * b);
+    double fa = a * std::sqrt(R * R - a * a) + R * R * std::asin(a / R);
+    double fx0 = x0 * b + R * R * std::asin(x0 / R);
+    return x0 * b + 0.5 * (fa - fx0);
+}
+
+// То же для a, b любого знака, площадь со знаком.
+static double signed_quadrant_area(double a, double b)
+{
+    double sign = (a < 0) == (b < 0) ? 1 : -1;
+    return sign * quadrant_area(std::fabs(a), std::fabs(b));
+}
+
+// Площадь прямоугольник ∩ круг: включение-исключение по четырём углам.
+static double disk_area(double x1, double x2, double y1, double y2)
+{
+    x1 -= CX; x2 -= CX;
+    y1 -= CY; y2 -= CY;
+    return signed_quadrant_area(x2, y2) - signed_quadrant_area(x1, y2)
+         - signed_quadrant_area(x2, y1) + signed_quadrant_area(x1, y1);
+}
+
+// S_ij = mes(клетка ∩ D) из раздела 4.
+static double area_D(double x1, double x2, double y1, double y2)
+{
+    double full = (x2 - x1) * (y2 - y1);
+    double nx = std::max(x1 - CX, std::max(0.0, CX - x2));
+    double ny = std::max(y1 - CY, std::max(0.0, CY - y2));
+    if (nx * nx + ny * ny >= R * R)
+        return full;
+    double fx = std::max(std::fabs(x1 - CX), std::fabs(x2 - CX));
+    double fy = std::max(std::fabs(y1 - CY), std::fabs(y2 - CY));
+    if (fx * fx + fy * fy <= R * R)
+        return 0;
+    return std::min(full, std::max(0.0, full - disk_area(x1, x2, y1, y2)));
+}
 
 static double wtime()
 {
@@ -34,10 +78,7 @@ int main(int argc, char **argv)
     const size_t n = size_t(M + 1) * s;
     std::vector<double> Q(n, 0), w(n, 0), r(n, 0), p(n, 0), Ap(n, 0);
 
-    // Сетка (M+1)x(N+1) узлов, узел (i,j) хранится под индексом k = i*(N+1) + j.
-    // Граничные узлы: значение Дирихле v0 (13), дальше не меняются.
-    // Внутренние: Q и F по (11); в r сначала кладётся правая часть B = F + Q*v0 из (12).
-    // Попытки 1-2: клетка целиком в D или целиком вне D — по положению её центрального узла.
+    // Граница: w = v0 (13). Внутри: F, Q по (11), в r — правая часть B = F + Q*v0 из (12).
     for (int i = 0; i <= M; i++)
         for (int j = 0; j <= N; j++) {
             double x = A1 + i * h1, y = A2 + j * h2;
@@ -46,17 +87,14 @@ int main(int argc, char **argv)
                 w[k] = v0(x, y);
                 continue;
             }
-            double F = in_D(x, y) ? 1 : 0;
-            Q[k] = in_D(x, y) ? 0 : 1 / (eps * eps);
-            r[k] = F + Q[k] * v0(x, y);
+            double frac = area_D(x - 0.5 * h1, x + 0.5 * h1, y - 0.5 * h2, y + 0.5 * h2) / (h1 * h2);
+            Q[k] = (1 - frac) / (eps * eps);
+            r[k] = frac + Q[k] * v0(x, y);
         }
 
     const double ih1 = 1 / (h1 * h1), ih2 = 1 / (h2 * h2), weight = h1 * h2;
 
-    // Старт CG (раздел 5): внутри w0 = 0, поэтому r0 = B - A*w0 учитывает только граничные значения.
-    // A*w — пятиточечный шаблон (12): (2/h1^2 + 2/h2^2 + Q)*w_ij минус четыре соседа.
-    // z0 = r0 / D, диагональный предобуславливатель D = 2/h1^2 + 2/h2^2 + Q; первое направление p1 = z0.
-    // zr = (z, r). Вес h1*h2 скалярного произведения (8) сокращается в alpha и beta.
+    // Старт CG (раздел 5): r0 = B - A*w0, z0 = r0 / D, p1 = z0.
     double zr = 0;
     for (int i = 1; i < M; i++)
         for (int j = 1; j < N; j++) {
@@ -71,7 +109,7 @@ int main(int argc, char **argv)
     const int max_iter = (M - 1) * (N - 1);
     int it;
     for (it = 1; it <= max_iter; it++) {
-        // Ap = A*p, alpha = (z, r) / (Ap, p); pp = (p, p) нужно для условия остановки.
+        // Ap = A*p, alpha = (z, r) / (Ap, p).
         double pAp = 0, pp = 0;
         for (int i = 1; i < M; i++)
             for (int j = 1; j < N; j++) {
@@ -82,7 +120,7 @@ int main(int argc, char **argv)
             }
         double alpha = zr / pAp;
 
-        // w += alpha*p (15), r -= alpha*Ap и новое (z, r), где z = r / D.
+        // w += alpha*p (15), r -= alpha*Ap, новое (z, r).
         double zr_new = 0;
         for (int i = 1; i < M; i++)
             for (int j = 1; j < N; j++) {
@@ -92,11 +130,11 @@ int main(int argc, char **argv)
                 zr_new += r[k] * r[k] / (2 * ih1 + 2 * ih2 + Q[k]);
             }
 
-        // Остановка (16): w(k+1) - w(k) = alpha*p, его норма (8) = |alpha| * sqrt(h1*h2*(p, p)).
+        // Остановка (16): ||w(k+1) - w(k)|| = |alpha| * ||p||.
         if (std::fabs(alpha) * std::sqrt(weight * pp) < delta)
             break;
 
-        // beta = (z_k, r_k) / (z_{k-1}, r_{k-1}), следующее направление p = z + beta*p.
+        // p = z + beta*p.
         double beta = zr_new / zr;
         zr = zr_new;
         for (int i = 1; i < M; i++)

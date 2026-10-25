@@ -1,0 +1,8 @@
+#BSUB -J serial
+#BSUB -W 00:15
+#BSUB -n 1
+#BSUB -o serial.%J.out
+#BSUB -e serial.%J.err
+for g in "20 20" "40 40" "80 80" "400 600" "800 1200"; do
+    ./solver $g
+done

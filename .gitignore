@@ -1,0 +1,6 @@
+solver
+solver_*
+!solver_*.cpp
+*.bin
+__pycache__/
+.DS_Store

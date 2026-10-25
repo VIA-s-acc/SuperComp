@@ -1,0 +1,51 @@
+Sender: LSF System <lsfadmin@polus-c2-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1600360: <serial> in cluster <MSUCluster> Done
+
+Job <serial> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-08> in cluster <MSUCluster> at Sun Oct 25 18:08:25 2026
+Job was executed on host(s) <polus-c2-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-08> in cluster <MSUCluster> at Sun Oct 25 18:08:26 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-08> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-08/01_serial> was used as the working directory.
+Started at Sun Oct 25 18:08:26 2026
+Terminated at Sun Oct 25 18:08:27 2026
+Results reported at Sun Oct 25 18:08:27 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J serial
+#BSUB -W 00:10
+#BSUB -n 1
+#BSUB -o serial.%J.out
+#BSUB -e serial.%J.err
+for n in 20 40 80; do
+    ./solver $n $n
+done
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   0.05 sec.
+    Max Memory :                                 1 MB
+    Average Memory :                             1.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              1
+    Max Threads :                                1
+    Run time :                                   4 sec.
+    Turnaround time :                            2 sec.
+
+The output (if any) follows:
+
+RESULT impl=serial attempt=2 M=20 N=20 P=1 T=1 iters=45 time=0.000366 w00=0.247283526370
+RESULT impl=serial attempt=2 M=40 N=40 P=1 T=1 iters=87 time=0.002457 w00=0.246577888261
+RESULT impl=serial attempt=2 M=80 N=80 P=1 T=1 iters=168 time=0.018303 w00=0.245366389810
+
+
+PS:
+
+Read file <serial.1600360.err> for stderr output of this job.

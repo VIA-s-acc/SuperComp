@@ -4,3 +4,6 @@ solver_*
 *.bin
 __pycache__/
 .DS_Store
+02_openmp/report/*.aux
+02_openmp/report/*.log
+02_openmp/report/*.out

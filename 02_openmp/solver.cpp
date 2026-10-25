@@ -65,7 +65,7 @@ static double wtime()
 int main(int argc, char **argv)
 {
     if (argc < 3) {
-        std::fprintf(stderr, "usage: %s M N [delta]\n", argv[0]);
+        std::fprintf(stderr, "usage: %s M N [delta] [dump-file]\n", argv[0]);
         return 2;
     }
     const int M = std::atoi(argv[1]), N = std::atoi(argv[2]);
@@ -161,5 +161,16 @@ int main(int argc, char **argv)
 
     std::printf("RESULT impl=omp attempt=%d M=%d N=%d P=1 T=%d iters=%d time=%.6f w00=%.12f\n",
                 ATTEMPT, M, N, omp_get_max_threads(), std::min(it, max_iter), time, w[(M / 2) * s + N / 2]);
+
+    // Дамп решения для рисунка: int32 M, int32 N, затем (M+1)(N+1) double, узел (i,j) под индексом i*(N+1)+j.
+    if (argc > 4) {
+        FILE *out = std::fopen(argv[4], "wb");
+        int mn[2] = {M, N};
+        if (!out || std::fwrite(mn, sizeof mn, 1, out) != 1 || std::fwrite(w, sizeof(double), n, out) != n) {
+            std::fprintf(stderr, "cannot write %s\n", argv[4]);
+            return 1;
+        }
+        std::fclose(out);
+    }
     return 0;
 }

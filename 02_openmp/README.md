@@ -12,9 +12,15 @@
 | `solver.cpp` | итоговая OpenMP-программа |
 | `Makefile` | сборка: `make POLUS=1` на Polus, `make` на Mac (brew g++) |
 | `table1.lsf` | LSF-задача для таблицы 1: serial-база и все конфигурации, по два раза |
-| `make_table.py` | строит таблицу и график из вывода Polus |
+| `make_table.py` | строит таблицу и график ускорения из вывода Polus |
+| `make_figures.py` | рисунки: решение, сравнение сеток, сходимость w(0,0), эффект привязки нитей |
+| `build_report.sh` | пересобирает таблицы, рисунки и PDF-отчёт одной командой |
+| **`report/report.pdf`** | **краткий отчёт по этапу** (исходник `report/report.tex`) |
 | `results/table1.md`, `results/table1.csv` | таблица 1 и сравнение на 80×80 |
 | `results/speedup_omp.png` | график ускорения |
+| `results/binding.png` | ускорение без привязки нитей и с привязкой |
+| `results/solution.png`, `results/solution_grids.png` | решение на 800×1200 и на четырёх сетках |
+| `results/convergence.png` | w(0,0) при сгущении сетки |
 | `runs/a1 … a3` | история попыток: код, LSF-задача, вывод Polus, README с разбором |
 | `runs/table1` | вывод прогона для таблицы 1 |
 
@@ -86,8 +92,4 @@
 
 ## Как запустить на Polus
 
-```bash
-make POLUS=1
-bsub < table1.lsf
-python3 make_table.py runs/table1/table1.*.out   # локально, по скопированному выводу
-```
+Подробные инструкции по всем запускам — в `../README.md`.

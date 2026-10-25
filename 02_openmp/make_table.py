@@ -24,6 +24,10 @@ def parse(paths):
     return runs
 
 
+def diff_tex(d):
+    return f"{d:.0e}" if d else "0"
+
+
 def best(runs, key):
     return min(runs[key]) if key in runs else None
 
@@ -39,18 +43,23 @@ def main():
           "Время — минимум из двух запусков. Ускорение = время serial / время OpenMP на той же сетке.", "",
           "| Нити | Сетка M×N | Итерации | Время, с | Ускорение |", "|---|---|---|---|---|"]
     csv = ["threads,M,N,iters,time,speedup"]
+    tex1, tex_serial, tex80 = [], [], []
     points = defaultdict(list)
     for (M, N), threads in [((400, 600), [2, 4, 8, 16, 32]), ((800, 1200), [2, 4, 8, 16, 32])]:
         base = best(runs, ("serial", M, N, 1))
+        if tex1:
+            tex1.append(r"\midrule")
         for t in threads:
             r = best(runs, ("omp", M, N, t))
             if not r or not base:
                 md.append(f"| {t} | {M}×{N} | — | — | — |")
+                tex1.append(f"{t} & ${M}\\times{N}$ & — & — & — \\\\")
                 continue
             sp = base[0] / r[0]
             points[f"{M}x{N}"].append((t, sp))
             md.append(f"| {t} | {M}×{N} | {r[1]} | {r[0]:.4f} | {sp:.2f} |")
             csv.append(f"{t},{M},{N},{r[1]},{r[0]:.6f},{sp:.3f}")
+            tex1.append(f"{t} & ${M}\\times{N}$ & {r[1]} & {r[0]:.4f} & {sp:.2f} \\\\")
 
     md += ["", "Последовательная версия (база ускорения):", "",
            "| Сетка M×N | Итерации | Время, с | w(0,0) |", "|---|---|---|---|"]
@@ -58,6 +67,7 @@ def main():
         r = best(runs, ("serial", M, N, 1))
         if r:
             md.append(f"| {M}×{N} | {r[1]} | {r[0]:.4f} | {r[2]:.12f} |")
+            tex_serial.append(f"${M}\\times{N}$ & {r[1]} & {r[0]:.4f} & {r[2]:.9f} \\\\")
 
     md += ["", "## 80×80: OpenMP против serial", "",
            "| Нити | Итерации | Время, с | Ускорение | w(0,0) | Отличие от serial |", "|---|---|---|---|---|---|"]
@@ -66,9 +76,13 @@ def main():
         r = best(runs, ("omp", 80, 80, t))
         if r and s80:
             md.append(f"| {t} | {r[1]} | {r[0]:.4f} | {s80[0] / r[0]:.2f} | {r[2]:.12f} | {abs(r[2] - s80[2]):.1e} |")
+            tex80.append(f"{t} & {r[1]} & {r[0]:.4f} & {s80[0] / r[0]:.2f} & {r[2]:.12f} & {diff_tex(abs(r[2] - s80[2]))} \\\\")
 
     (out / "table1.md").write_text("\n".join(md) + "\n")
     (out / "table1.csv").write_text("\n".join(csv) + "\n")
+    (out / "table1_rows.tex").write_text("\n".join(tex1) + "\n")
+    (out / "serial_rows.tex").write_text("\n".join(tex_serial) + "\n")
+    (out / "t80_rows.tex").write_text("\n".join(tex80) + "\n")
 
     fig, ax = plt.subplots(figsize=(6.4, 4.4), dpi=150)
     top = 32

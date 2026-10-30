@@ -1,0 +1,17 @@
+g++ -O3 -std=c++11 -Wall -Wextra -fopenmp -mcpu=power8 solver.cpp -o solver
+g++ -O3 -std=c++11 -Wall -Wextra -fopenmp -mcpu=power8 test.cpp -o run_tests
+./run_tests
+PASS  area: whole square = 4 - pi/4                            3.214601836602552 vs 3.214601836602552
+PASS  area: [0,1]^2 = 1 - pi/4                                 0.214601836602552 vs 0.214601836602552
+PASS  area: left half has no disk part = 2                     2.000000000000000
+PASS  area: cell inside the disk = 0                           0.000e+00
+PASS  area: sum over 80x80 cells = 4 - pi/4                    error 9.59e-14
+PASS  area: 0 <= S_ij <= h1*h2 for every cell                  
+PASS  reference 20x20: iters and w(0,0)                        iters 44, w(0,0) = 0.240194487380
+PASS  reference 40x40: iters and w(0,0)                        iters 85, w(0,0) = 0.239041584641
+PASS  reference 80x80: iters and w(0,0)                        iters 167, w(0,0) = 0.241097385417
+PASS  exact u = sin(x+y): error drops ~4x per refinement       max error 1.34e-04, 3.36e-05, 8.43e-06; ratios 3.98, 3.99
+PASS  fictitious region: |w - v0| small and decreasing         2.0e-04, 1.2e-05, 7.8e-07
+PASS  threads: same solution on 1, 2, 4, 8 threads             max |w_T - w_1| = 2.0e-15 over T = 2, 4, 8
+PASS  history: one entry per iteration, stops at dw < delta    167 entries, last dw 9.47e-07, residual 5.74e+02 -> 1.69e-03
+OK: 0 failed

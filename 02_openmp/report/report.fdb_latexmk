@@ -1,0 +1,21 @@
+# Fdb version 4
+["pdflatex"] 1793385219.07352 "/Users/georgii/GITHUB/SuperComp/02_openmp/report/report.tex" "report.pdf" "report" 1793385219.26171 2
+  "/Users/georgii/GITHUB/SuperComp/02_openmp/report/report.tex" 1793385218.52988 19870 5087f23cb6d7ecfccf7e987983682c66 ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmr10.tfm" 1136768653 1296 45809c5a464d5f32c8f98ba97c1bb47f ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/base/article.cls" 1748806692 20144 b966087dda3b194755eb460d32e2ef75 ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/base/size11.clo" 1748806692 8464 f339f4d5391fbe0425b2d94c90e6819e ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/fontspec/fontspec.sty" 1759176595 3804 debc05110ffb506cef68ea4e72c7bcee ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def" 1761248321 30662 bfd6e864f4ffc5018b0e2b6260c3181c ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/l3kernel/expl3.sty" 1769028462 6558 45786cbbf5684a09ee65aa45a7b367e0 ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/l3packages/xparse/xparse.sty" 1761248321 10176 c2fc1c663b3f3899ddac6e6ed3fb1d7e ""
+  "/usr/local/texlive/2026/texmf-dist/web2c/texmf.cnf" 1770478701 43630 e9fa012910491fe5ae08a72c3c2997a7 ""
+  "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1772821481 3636759 aadae65bab8746e0f6e4911276963672 ""
+  "/usr/local/texlive/2026/texmf.cnf" 1772409725 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
+  "report.aux" 1793385211.07306 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
+  "report.tex" 1793385218.52988 19870 5087f23cb6d7ecfccf7e987983682c66 ""
+  (generated)
+  "report.aux"
+  "report.log"
+  "report.pdf"
+  (rewritten before read)

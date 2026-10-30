@@ -34,17 +34,9 @@ brew install gcc open-mpi
 - serial собирается системным `g++` (clang), OpenMP — `/opt/homebrew/bin/g++-16` (в Makefile).
 - Для таблиц и графиков — Python 3 с `numpy` и `matplotlib`, для отчёта — `xelatex` (MacTeX).
 
-### Доступ к Polus
+### IBM Polus
 
-Ключ курса — `~/.ssh/skmodel2026`. В `~/.ssh/config` добавлено короткое имя:
-```
-Host polus
-    HostName polus.hpc.cs.msu.ru
-    User edu-cmc-skmodel26-609-08
-    IdentityFile ~/.ssh/skmodel2026
-    IdentitiesOnly yes
-```
-После этого `ssh polus` и `scp … polus:~/…` работают без пароля и `-i`.
+В командах ниже `polus` — короткое имя хоста из `~/.ssh/config` (вход по ssh-ключу курса).
 
 На Polus: GCC 4.8.5 (C++11, OpenMP 3.1), процессоры POWER8 (у ядра 8 аппаратных потоков),
 планировщик IBM Spectrum LSF.

@@ -131,12 +131,21 @@ cd ~/02_openmp && make -B POLUS=1 && bsub < table1.lsf
 scp 'polus:~/02_openmp/table1.*' 02_openmp/runs/table1/
 ```
 
+**Тесты** (на Mac и на Polus):
+```bash
+cd 02_openmp && make test            # на Polus: make test POLUS=1
+```
+
+**История итераций** — ключи программы: `--history файл` (‖w(k+1) − w(k)‖ и невязка по итерациям),
+`--ref дамп` (ошибка относительно эталона), `--exact` (тестовая задача u = sin(x+y)),
+`--dump файл` (сохранить решение).
+
 **Таблица, графики и отчёт** (на Mac):
 ```bash
 02_openmp/build_report.sh
 ```
 Скрипт собирает программу, при необходимости считает локально решения на 20×20, 40×40, 80×80,
-800×1200 для рисунков (`02_openmp/dumps/`, в git не попадают), строит из вывода Polus
+800×1200 для рисунков (`02_openmp/dumps/`, в git не попадают) и истории итераций, строит из вывода Polus
 `results/table1.md`, `results/*.png` и собирает `report/report.pdf`.
 
 Отдельно:
@@ -144,7 +153,7 @@ scp 'polus:~/02_openmp/table1.*' 02_openmp/runs/table1/
 cd 02_openmp
 python3 make_table.py runs/table1/table1.*.out     # таблица 1 + график ускорения
 python3 make_figures.py dumps/sol_20x20.bin dumps/sol_40x40.bin dumps/sol_80x80.bin dumps/sol_800x1200.bin
-OMP_NUM_THREADS=4 ./solver 800 1200 1e-6 dumps/sol_800x1200.bin   # дамп решения
+OMP_NUM_THREADS=4 ./solver 800 1200 --dump dumps/sol_800x1200.bin   # дамп решения
 ```
 
 ## Частые ошибки

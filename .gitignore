@@ -7,3 +7,5 @@ __pycache__/
 02_openmp/report/*.aux
 02_openmp/report/*.log
 02_openmp/report/*.out
+02_openmp/run_tests
+02_openmp/dumps/

@@ -99,7 +99,54 @@ def convergence():
     ax.grid(True, axis="y", color=GRID, linewidth=0.8)
     style(ax, "Сетка M×N", "w(0, 0)", "Значение в точке (0, 0) при сгущении сетки")
     fig.tight_layout()
-    fig.savefig(OUT / "convergence.png")
+    fig.savefig(OUT / "grid_convergence.png")
+
+
+SERIES3 = [("80x80", "#2a78d6", "o"), ("400x600", "#eb6834", "s"), ("800x1200", "#1baf7a", "^")]
+
+
+def history(kind, name):
+    data = np.loadtxt(OUT / "history" / f"{kind}_{name}.txt", skiprows=1)
+    return data[:, 0], data[:, 1], data[:, 2], data[:, 3], data[:, 4]
+
+
+def log_panel(ax, title, ylabel):
+    ax.set_yscale("log")
+    ax.grid(True, color=GRID, linewidth=0.8)
+    style(ax, "Номер итерации k", ylabel, title)
+
+
+def iterations():
+    fig, (left, right) = plt.subplots(1, 2, figsize=(11, 4.2), dpi=150)
+    for name, color, _ in SERIES3:
+        k, dw, res, _, _ = history("real", name)
+        label = name.replace("x", "×")
+        left.plot(k, dw, color=color, linewidth=1.6, label=label)
+        right.plot(k, res, color=color, linewidth=1.6, label=label)
+    left.axhline(1e-6, color=MUTED, linestyle=(0, (4, 3)), linewidth=1.2)
+    left.annotate("δ = 10⁻⁶", (0, 1e-6), textcoords="offset points", xytext=(4, 4), color=MUTED, fontsize=9)
+    log_panel(left, "Изменение решения за итерацию", r"$\|w^{(k+1)} - w^{(k)}\|_E$")
+    log_panel(right, "Невязка", r"$\|r^{(k)}\|_E = \|B - Aw^{(k)}\|_E$")
+    left.legend(frameon=False, labelcolor=INK)
+    fig.tight_layout()
+    fig.savefig(OUT / "iterations.png")
+
+
+def errors():
+    fig, (left, right) = plt.subplots(1, 2, figsize=(11, 4.2), dpi=150)
+    for name, color, _ in SERIES3:
+        label = name.replace("x", "×")
+        k, _, _, err_c, _ = history("real", name)
+        left.plot(k, err_c, color=color, linewidth=1.6, label=label)
+        k, _, _, err_c, _ = history("exact", name)
+        right.plot(k, err_c, color=color, linewidth=1.6, label=label)
+        right.annotate(f"{err_c[-1]:.1e}", (k[-1], err_c[-1]), textcoords="offset points",
+                       xytext=(4, -10), color=INK, fontsize=8)
+    log_panel(left, "Вариант 18: ошибка относительно w* (δ = 10⁻¹²)", r"$\max\,|w^{(k)} - w^*|$")
+    log_panel(right, "Тестовая задача: ошибка относительно u = sin(x+y)", r"$\max\,|w^{(k)} - u|$")
+    left.legend(frameon=False, labelcolor=INK)
+    fig.tight_layout()
+    fig.savefig(OUT / "error_iterations.png")
 
 
 def binding():
@@ -134,6 +181,8 @@ def main():
     OUT.mkdir(exist_ok=True)
     binding()
     convergence()
+    iterations()
+    errors()
     dumps = sys.argv[1:]
     if dumps:
         solution(dumps[-1])

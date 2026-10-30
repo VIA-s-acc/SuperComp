@@ -9,3 +9,6 @@ __pycache__/
 02_openmp/report/*.out
 02_openmp/run_tests
 02_openmp/dumps/
+02_openmp/report/*.fls
+02_openmp/report/*.fdb_latexmk
+02_openmp/report/*.synctex.gz
